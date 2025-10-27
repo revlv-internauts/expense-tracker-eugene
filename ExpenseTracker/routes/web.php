@@ -30,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 //Route::middleware(['auth', 'verified'])->group(function () {
 //    Route::resource('categories', CategoryController::class);
 //});
+
+//expense-tracker-routes
 Route::middleware(['auth'])->group(function () {
     Route::resource('/expenses', ExpenseController::class);
     Route::resource('/accounts', AccountController::class);

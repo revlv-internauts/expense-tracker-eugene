@@ -13,39 +13,42 @@ class ExpenseControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test]
-    public function test_user_can_view_expense_index()
+    /** @test */
+    public function guest_cannot_access_expenses()
+    {
+        $this->get(route('expenses.index'))->assertRedirect(route('login'));
+    }
+
+    /** @test */
+    public function authenticated_user_can_view_their_own_expenses()
     {
         $user = User::factory()->create();
-        $this->actingAs($user);
+        $account = Account::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create(['user_id' => $user->id]);
+        $expense = Expense::factory()->create([
+            'user_id' => $user->id,
+            'account_id' => $account->id,
+            'category_id' => $category->id,
+        ]);
 
-        $expenses = Expense::factory()
-            ->for(Account::factory())
-            ->for(Category::factory())
-            ->count(2)
-            ->create();
+        $response = $this->actingAs($user)->get(route('expenses.index'));
 
-        $response = $this->get(route('expenses.index'));
-
-        $response->assertStatus(200);
         $response->assertInertia(fn ($page) =>
             $page->component('expenses/index')
-                 ->has('expenses', 2)
+                 ->has('expenses', 1)
+                 ->where('expenses.0.description', $expense->description)
         );
     }
 
-    #[Test]
-    public function test_user_can_view_expense_create_page()
+    /** @test */
+    public function user_can_access_create_expense_page()
     {
         $user = User::factory()->create();
-        $this->actingAs($user);
+        $account = Account::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create(['user_id' => $user->id]);
 
-        Account::factory()->count(2)->create();
-        Category::factory()->count(3)->create();
+        $response = $this->actingAs($user)->get(route('expenses.create'));
 
-        $response = $this->get(route('expenses.create'));
-
-        $response->assertStatus(200);
         $response->assertInertia(fn ($page) =>
             $page->component('expenses/create')
                  ->has('accounts')
@@ -53,45 +56,139 @@ class ExpenseControllerTest extends TestCase
         );
     }
 
-    #[Test]
-    public function test_user_can_store_an_expense()
+    /** @test */
+    public function user_can_create_expense_with_valid_data()
     {
         $user = User::factory()->create();
-        $this->actingAs($user);
+        $account = Account::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create(['user_id' => $user->id]);
 
-        $account = Account::factory()->create();
-        $category = Category::factory()->create();
-
-        $data = [
+        $response = $this->actingAs($user)->post(route('expenses.store'), [
             'account_id' => $account->id,
             'category_id' => $category->id,
-            'description' => 'Lunch with client',
-            'amount' => 1500,
-        ];
-
-        $response = $this->post(route('expenses.store'), $data);
+            'description' => 'Coffee',
+            'amount' => 120,
+        ]);
 
         $response->assertRedirect(route('expenses.index'));
         $this->assertDatabaseHas('expenses', [
-            'description' => 'Lunch with client',
-            'amount' => 1500,
+            'user_id' => $user->id,
+            'description' => 'Coffee',
+            'amount' => 120,
         ]);
     }
 
-    #[Test]
-    public function test_user_can_delete_an_expense()
+    /** @test */
+    public function expense_creation_requires_all_fields()
     {
         $user = User::factory()->create();
-        $this->actingAs($user);
 
-        $expense = Expense::factory()
-            ->for(Account::factory())
-            ->for(Category::factory())
-            ->create();
+        $response = $this->actingAs($user)->post(route('expenses.store'), []);
 
-        $response = $this->delete(route('expenses.destroy', $expense->id));
+        $response->assertSessionHasErrors(['account_id', 'category_id', 'description', 'amount']);
+    }
+
+    /** @test */
+    public function user_can_edit_their_own_expense()
+    {
+        $user = User::factory()->create();
+        $account = Account::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create(['user_id' => $user->id]);
+        $expense = Expense::factory()->create([
+            'user_id' => $user->id,
+            'account_id' => $account->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('expenses.edit', $expense));
+
+        $response->assertInertia(fn ($page) =>
+            $page->component('expenses/edit')
+                 ->where('expense.id', $expense->id)
+                 ->has('accounts')
+                 ->has('categories')
+        );
+    }
+
+    /** @test */
+    public function user_cannot_edit_someone_elses_expense()
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+        $expense = Expense::factory()->create(['user_id' => $other->id]);
+
+        $this->actingAs($user)
+             ->get(route('expenses.edit', $expense))
+             ->assertForbidden();
+    }
+
+    /** @test */
+    public function user_can_update_their_own_expense()
+    {
+        $user = User::factory()->create();
+        $account = Account::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create(['user_id' => $user->id]);
+        $expense = Expense::factory()->create([
+            'user_id' => $user->id,
+            'account_id' => $account->id,
+            'category_id' => $category->id,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('expenses.update', $expense), [
+            'account_id' => $account->id,
+            'category_id' => $category->id,
+            'description' => 'Updated Expense',
+            'amount' => 999,
+        ]);
+
+        $response->assertRedirect(route('expenses.index'));
+        $this->assertDatabaseHas('expenses', [
+            'id' => $expense->id,
+            'description' => 'Updated Expense',
+            'amount' => 999,
+        ]);
+    }
+
+    /** @test */
+    public function user_cannot_update_someone_elses_expense()
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+        $expense = Expense::factory()->create(['user_id' => $other->id]);
+
+        $this->actingAs($user)
+             ->put(route('expenses.update', $expense), [
+                 'description' => 'Hack',
+                 'amount' => 999,
+                 'account_id' => 1,
+                 'category_id' => 1,
+             ])
+             ->assertForbidden();
+    }
+
+    /** @test */
+    public function user_can_delete_their_own_expense()
+    {
+        $user = User::factory()->create();
+        $expense = Expense::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->delete(route('expenses.destroy', $expense));
 
         $response->assertRedirect(route('expenses.index'));
         $this->assertDatabaseMissing('expenses', ['id' => $expense->id]);
+    }
+
+    /** @test */
+    public function user_cannot_delete_someone_elses_expense()
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+        $expense = Expense::factory()->create(['user_id' => $other->id]);
+
+        $this->actingAs($user)
+             ->delete(route('expenses.destroy', $expense))
+             ->assertForbidden();
+
+        $this->assertDatabaseHas('expenses', ['id' => $expense->id]);
     }
 }
