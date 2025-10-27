@@ -37,7 +37,7 @@ export function CategoryTable({ categories }: CategoryTableProps) {
   }
     return (
         <>
-        <Toaster position="bottom-right" />
+        <Toaster position="top-right" />
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:items-center">
                 <div className="sm:flex-auto">
@@ -63,9 +63,18 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                             <table className="relative min-w-full divide-y divide-gray-300">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th scope="col" className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                            Name
-                                        </th>
+                                      <th
+                                        scope="col"
+                                        className="py-3.5 pr-3 pl-4 text-left text-sm font-bold text-gray-900 sm:pl-6"
+                                      >
+                                        Name
+                                      </th>
+                                      <th
+                                        scope="col"
+                                        className="py-3.5 pr-4 pl-3 text-right text-sm font-bold text-gray-900 sm:pr-6"
+                                      >
+                                        Actions
+                                      </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
@@ -78,7 +87,7 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                     ) : (
                                         categories.map((category) => (
                                             <tr key={category.id}>
-                                                <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
+                                                <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6">
                                                     {category.name}
                                                 </td>
                                                 <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-6">

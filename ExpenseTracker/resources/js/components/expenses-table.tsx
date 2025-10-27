@@ -24,7 +24,7 @@ export function ExpenseTable({ expenses }: ExpenseTableProps) {
 
   return (
     <>
-      <Toaster position="bottom-right" />
+      <Toaster position="top-right" />
       
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
@@ -51,20 +51,29 @@ export function ExpenseTable({ expenses }: ExpenseTableProps) {
                 <table className="relative min-w-full divide-y divide-gray-300">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th scope="col" className="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                      {/* Account Header */}
+                      <th scope="col" className="py-3.5 pr-3 pl-4 text-left text-sm font-bold text-gray-900 sm:pl-6">
                         Account
                       </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      {/* Category Header */}
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-bold text-gray-900">
                         Category
                       </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      {/* Amount Header */}
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-bold text-gray-900">
                         Amount
                       </th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      {/* Description Header */}
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-bold text-gray-900">
                         Description
                       </th>
-                      <th scope="col" className="py-3.5 pr-4 pl-3 sm:pr-6">
-                        <span className="sr-only">Actions</span>
+                      {/* Date Header */}
+                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-bold text-gray-900">
+                        Date
+                      </th>
+                      {/* Actions Header */}
+                      <th scope="col" className="px-3 py-3.5 text-right text-sm font-bold text-gray-900 sm:pr-6">
+                          Actions
                       </th>
                     </tr>
                   </thead>
@@ -78,20 +87,28 @@ export function ExpenseTable({ expenses }: ExpenseTableProps) {
                     ) : (
                       expenses.map((expense) => (
                         <tr key={expense.id}>
-                          <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
+                          {/* Render Account Data */}
+                          <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6">
                             {expense.account?.name ?? '—'}
                           </td>
-                          <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
+                          {/* Render Category Data */}
+                          <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6">
                             {expense.category?.name ?? '—'}
                           </td>
-                          <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
+                          {/* Render Amount Data */}
+                          <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6">
                             ₱{Number(expense.amount).toFixed(2)}
                           </td>
-                          <td className="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-6">
+                          {/* Render Description Data */}
+                          <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6">
                             {expense.description}
                           </td>
-                          <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-6">
-                            <div className='flex justify-end space-x-2'>
+                          {/* Render Date Data */}
+                          <td className="py-4 pr-3 pl-4 text-sm whitespace-nowrap text-gray-900 sm:pl-6">
+                            {expense.date}
+                          </td>
+                          <td className="py-4 pr-4 pl-3 text-sm font-medium whitespace-nowrap sm:pr-6">
+                            <div className="flex justify-end space-x-2">
                               <Link
                                 href={`/expenses/${expense.id}/edit`}
                                 className="text-indigo-600 hover:text-indigo-900"

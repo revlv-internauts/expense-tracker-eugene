@@ -26,7 +26,8 @@ class ExpenseController extends Controller
     public function create()
     {
         $accounts = Account::where('user_id', Auth::id())->get();
-        $categories = Category::where('user_id', Auth::Id())->get();
+        $categories = Category::where('user_id', Auth::id())->get();
+
         return Inertia::render('expenses/create', [
             'accounts' => $accounts,
             'categories' => $categories,
@@ -38,25 +39,28 @@ class ExpenseController extends Controller
         $validated = $request->validate([
             'account_id' => ['required', 'exists:accounts,id'],
             'category_id' => ['required', 'exists:categories,id'],
-            'description' => ['required'],
-            'amount' => ['required'],
+            'description' => ['required', 'string'],
+            'amount' => ['required', 'numeric'],
+            'date' => ['required', 'date'],
         ]);
 
         Expense::create([
             ...$validated,
             'user_id' => Auth::id(),
         ]);
-        return to_route('expenses.index');
+
+        return to_route('expenses.index')->with('success', 'Expense added successfully.');
     }
 
     public function edit(Expense $expense)
     {
-
         if ($expense->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
+
         $accounts = Account::where('user_id', Auth::id())->get();
-        $categories = Category::where('user_id', Auth::Id())->get();
+        $categories = Category::where('user_id', Auth::id())->get();
+
         return Inertia::render('expenses/edit', [
             'expense' => $expense,
             'accounts' => $accounts,
@@ -69,15 +73,18 @@ class ExpenseController extends Controller
         if ($expense->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
+
         $validated = $request->validate([
             'account_id' => ['required', 'exists:accounts,id'],
             'category_id' => ['required', 'exists:categories,id'],
-            'description' => ['required'],
-            'amount' => ['required'],
+            'description' => ['required', 'string'],
+            'amount' => ['required', 'numeric'],
+            'date' => ['required', 'date'],
         ]);
 
         $expense->update($validated);
-        return to_route('expenses.index');
+
+        return to_route('expenses.index')->with('success', 'Expense updated successfully.');
     }
 
     public function destroy(Expense $expense)
@@ -85,8 +92,9 @@ class ExpenseController extends Controller
         if ($expense->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
-        $expense->delete(); 
+
+        $expense->delete();
+
         return to_route('expenses.index')->with('success', 'Expense deleted.');
     }
-
 }

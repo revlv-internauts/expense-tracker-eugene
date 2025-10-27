@@ -6,6 +6,7 @@ export type Expense = {
   account_id: number
   category_id: number
   description: string
+  date: string
   amount: number
   created_at?: string
   updated_at?: string
@@ -33,6 +34,7 @@ export default function Edit({ expense, accounts, categories }: ExpenseEditProps
     category_id: number
     description: string
     amount: number
+    date: string
   }
 
   const { data, setData, put, processing, errors } = useForm<FormData>({
@@ -40,6 +42,7 @@ export default function Edit({ expense, accounts, categories }: ExpenseEditProps
     category_id: expense.category_id,
     description: expense.description,
     amount: expense.amount,
+    date: expense.date,
   })
 
   function handleSubmit(e: React.FormEvent) {
@@ -147,6 +150,22 @@ export default function Edit({ expense, accounts, categories }: ExpenseEditProps
               />
               {errors.amount && (
                 <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+              )}
+            </div>
+            <div className="sm:col-span-3">
+              <label htmlFor="date" className="block text-sm font-medium text-gray-900">
+                Date
+              </label>
+              <input
+                id="date"
+                name="date"
+                type="date"
+                value={data.date}
+                onChange={(e) => setData('date', e.target.value)}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+              />
+              {errors.date && (
+                <p className="mt-1 text-sm text-red-600">{errors.date}</p>
               )}
             </div>
           </div>

@@ -5,6 +5,7 @@ export type Expense = {
   id: number
   account_id: number
   category_id: number
+  date: string
   description: string
   amount: number
   created_at?: string
@@ -31,6 +32,7 @@ export default function Create({ accounts, categories }: ExpenseCreateProps) {
     account_id: number
     category_id: number
     description: string
+    date: string
     amount: number
   }
 
@@ -38,6 +40,7 @@ export default function Create({ accounts, categories }: ExpenseCreateProps) {
     account_id: 0,
     category_id: 0,
     description: '',
+    date: '',
     amount: '',
   })
 
@@ -148,6 +151,22 @@ export default function Create({ accounts, categories }: ExpenseCreateProps) {
                 />
                 {errors.amount && (
                   <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+                )}
+              </div>
+              <div className="sm:col-span-6">
+                <label htmlFor="date" className="block text-sm font-medium text-gray-900">
+                  Date
+                </label>
+                <input
+                  id="date"
+                  name="date"
+                  type="date"
+                  value={data.date}
+                  onChange={(e) => setData('date', e.target.value)}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+                />
+                {errors.date && (
+                  <p className="mt-1 text-sm text-red-600">{errors.date}</p>
                 )}
               </div>
             </div>

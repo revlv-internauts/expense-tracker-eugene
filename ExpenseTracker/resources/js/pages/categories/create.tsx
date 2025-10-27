@@ -31,6 +31,8 @@ export default function Create({ accounts }: CategoriesCreateProps) {
 }
 
   return (
+    <>
+    <Toaster position='top-right' />
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto py-10">
       <div className="space-y-12 sm:space-y-16">
         {/* Header */}
@@ -79,5 +81,6 @@ export default function Create({ accounts }: CategoriesCreateProps) {
         </button>
       </div>
     </form>
+    </>
   )
 }
