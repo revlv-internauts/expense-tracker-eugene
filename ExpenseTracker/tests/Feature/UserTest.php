@@ -31,21 +31,20 @@ class UserTest extends TestCase
         ]);
     }
 
-    public function test_user_can_login()
-    {
-        $user = User::factory()->create([
-            'two_factor_secret' => null,
-            'password' => Hash::make('password'),
-        ]);
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
+        public function test_user_can_login()
+        {
+            $user = User::factory()->create([
+                'two_factor_secret' => null,
+                'password' => Hash::make('password'),
+            ]);
+            $response = $this->post('/login', [
+                'email' => $user->email,
+                'password' => 'password',
+            ]);
 
-        $response->assertRedirect('/login');
-        $response->assertSessionHasErrors('email');
-        $this->assertGuest();
-    }
+            $response->assertRedirect('/dashboard');
+            $this->assertAuthenticatedAs($user);
+        }
 
     public function test_user_can_logout()
     {
