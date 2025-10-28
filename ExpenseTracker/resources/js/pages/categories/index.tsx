@@ -2,7 +2,11 @@ import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { CategoryTable } from '@/components/categories-table';
 
-export default function CategoryIndex({ categories }) {
+interface CategoryPageProps {
+    categories: Category[];
+}
+
+export default function CategoryIndex({ categories }: CategoryPageProps) {
     return (
         <AppLayout>
             <Head title="Categories" />

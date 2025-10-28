@@ -1,23 +1,29 @@
-import { type Account } from '@/types/accounts';
+import { type Account } from '@/types/index';
 import { Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { useState } from 'react';
+import { usePage } from '@inertiajs/react';
 
-
+interface PageProps {
+    flash?: {
+        error?: string;
+        success?: string;
+    }
+}
 type AccountTableProps = {
     accounts: Account[];
 }
 
 export function AccountTable({ accounts }: AccountTableProps) {
-    function handleDelete(id: number) {
-    if(confirm("Are you sure you want to delete this account?")) {
+  function handleDelete(id: number) {
+    if (confirm("Are you sure you want to delete this account?")) {
       router.delete(`/accounts/${id}`, {
         onSuccess: () => {
-          toast.success('Account deleted successfully!');
+          toast.success('Account deleted successfully!')
         },
-        onError: (error) => {
-          toast.error('Failed to delete account');
-          console.error(error);
+        onError: () => {
+          toast.error('Failed to delete account')
         },
       })
     }

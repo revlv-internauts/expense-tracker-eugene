@@ -1,6 +1,7 @@
 import { useForm, Link } from '@inertiajs/react'
 import toast, { Toaster } from 'react-hot-toast'
 
+
 export type Account = {
   id: number
   name: string
@@ -8,11 +9,11 @@ export type Account = {
   updated_at?: string
 }
 
-//interface AccountCreateProps {
-//  accounts: Account[]
-//}
+interface AccountCreateProps {
+  account: Account
+}
 
-export default function Edit({ account }) {
+export default function Edit({ account }: AccountCreateProps) {
   const { data, setData, put, processing, errors } = useForm({
     name: account.name ?? '-',
   })

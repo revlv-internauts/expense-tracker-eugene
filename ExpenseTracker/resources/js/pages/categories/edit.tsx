@@ -1,18 +1,19 @@
 import { useForm, Link } from '@inertiajs/react'
 import toast, { Toaster } from 'react-hot-toast'
 
-export type Categories = {
+export type Category = {
   id: number
   name: string
   created_at?: string
   updated_at?: string
 }
 
-//interface AccountCreateProps {
-//  accounts: Account[]
-//}
+interface CategoryCreateProps {
+  category: Category
+}
 
-export default function Edit({ category }) {
+
+export default function Edit({ category }: CategoryCreateProps) {
   const { data, setData, put, processing, errors } = useForm({
     name: category.name ?? '-',
   })

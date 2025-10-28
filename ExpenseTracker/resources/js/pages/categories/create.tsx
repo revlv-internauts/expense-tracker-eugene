@@ -9,10 +9,13 @@ export type Category = {
 }
 
 interface CategoryCreateProps {
-  categories: Category[]
+  category: Category
 }
 
-export default function Create({ accounts }: CategoriesCreateProps) {
+export default function Create(){
+  type FormData = {
+    name: string
+  }
 
   const { data, setData, post, processing, errors } = useForm<FormData>({
     name: '',

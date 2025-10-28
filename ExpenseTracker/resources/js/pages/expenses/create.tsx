@@ -27,16 +27,18 @@ interface ExpenseCreateProps {
   categories: Category[]
 }
 
+//pag set ng data types yung accounts, categories na nasa loob ng {} is kailangan para mapagana yung accounts.map or categories.map
 export default function Create({ accounts, categories }: ExpenseCreateProps) {
-  type FormData = {
+  type ExpenseFormData = {
     account_id: number
     category_id: number
     description: string
     date: string
-    amount: number
+    amount: string
   }
 
-  const { data, setData, post, processing, errors } = useForm<FormData>({
+  //data eto yung nag cocontain ng json response galing sa backend, setData eto yung function to update the data, post eto yung function to send data to backend, processing eto yung boolean if nag se-send pa ba ng data or hindi, errors eto yung nag cocontain ng mga validation errors galing sa backend
+  const { data, setData, post, processing, errors } = useForm<ExpenseFormData>({
     account_id: 0,
     category_id: 0,
     description: '',
@@ -144,9 +146,9 @@ export default function Create({ accounts, categories }: ExpenseCreateProps) {
                   id="amount"
                   name="amount"
                   type="number"
-                  step="0.01"
+                  //step="0.01"
                   value={data.amount}
-                  onChange={(e) => setData('amount', Number(e.target.value))}
+                  onChange={(e) => setData('amount', e.target.value)}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
                 />
                 {errors.amount && (

@@ -1,4 +1,4 @@
-import { type Expense } from '@/types/expenses';
+import { type Expense } from '@/types/index';
 import { Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';

@@ -41,3 +41,37 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Expense {
+    id: number;
+    account_id: number;
+    category_id: number;
+    date: string;
+    description: string;
+    amount: number;
+    created_at?: string;
+    updated_at?: string;
+
+    account?: {
+        id: number;
+        name: string;
+    }
+    category?: {
+        id: number;
+        name: string;
+    }
+}
+
+export interface Category {
+    id: number;
+    name: string;
+
+    description?: string;
+}
+
+export interface Account {
+    id: number;
+    name: string;
+
+    description?: string;
+}

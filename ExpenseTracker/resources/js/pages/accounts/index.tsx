@@ -1,8 +1,13 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { AccountTable } from '@/components/accounts-table';
+import { type Account } from '@/types/index';
 
-export default function AccountIndex({ accounts }) {
+interface AccountPageProps {
+    accounts: Account[];
+}
+
+export default function AccountIndex({ accounts }: AccountPageProps) {
     return (
         <AppLayout>
             <Head title="Accounts" />

@@ -67,11 +67,10 @@ class AccountController extends Controller
     public function destroy(Account $account)
     {
         if ($account->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
+            abort(403, 'Unauthorize action.');
         }
-
         $account->delete();
-
         return to_route('accounts.index');
     }
+
 }

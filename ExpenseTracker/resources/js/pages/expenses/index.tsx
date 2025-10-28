@@ -1,8 +1,13 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 import { ExpenseTable } from '@/components/expenses-table';
+import { Expense } from '@/types/';
+ 
+interface ExpensePageProps {
+    expenses: Expense[];
+}
 
-export default function ExpenseIndex({ expenses }) {
+export default function ExpenseIndex({ expenses }: ExpensePageProps) {
     return (
         <AppLayout>
             <Head title="Expenses" />

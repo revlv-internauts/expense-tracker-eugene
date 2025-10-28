@@ -145,7 +145,7 @@ export default function Edit({ expense, accounts, categories }: ExpenseEditProps
                 name="amount"
                 type="number"
                 value={data.amount}
-                onChange={(e) => setData('amount', e.target.value)}
+                onChange={(e) => setData('amount', parseFloat(e.target.value) || 0)}
                 className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
               />
               {errors.amount && (
