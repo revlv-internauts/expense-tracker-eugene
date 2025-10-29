@@ -1,21 +1,7 @@
-import { type Category } from '@/types/accounts';
+import { type Category } from '@/types/index';
 import { Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-
-function handleDelete(id: number) {
-    if(confirm("Are you sure you want to delete this category type?")) {
-        router.delete(`/categories/${id}`, {
-            onSuccess: () => {
-                toast.success('account deleted successfully!')
-            },
-            onError: (error) => {
-               toast.error('Failed to delete accounts');
-               console.error(error);
-            },
-        })
-    }
-}
 
 type CategoryTableProps = {
     categories: Category[];
@@ -23,18 +9,29 @@ type CategoryTableProps = {
 
 export function CategoryTable({ categories }: CategoryTableProps) {
     function handleDelete(id: number) {
-    if(confirm("Are you sure you want to delete this category?")) {
-      router.delete(`/categories/${id}`, {
-        onSuccess: () => {
+  if (confirm("Are you sure you want to delete this category?")) {
+    router.delete(`/categories/${id}`, {
+      onSuccess: (page: any) => {
+        // Add console.log to debug
+        console.log('Flash messages:', page.props.flash);
+        
+        // Check flash messages from the server
+        if (page.props.flash?.error) {
+          toast.error(page.props.flash.error);
+        } else if (page.props.flash?.success) {
+          toast.success(page.props.flash.success);
+        } else {
+          // This shouldn't run if flash messages are working
           toast.success('Category deleted successfully!');
-        },
-        onError: (error) => {
-          toast.error('Failed to delete category');
-          console.error(error);
-        },
-      })
-    }
+        }
+      },
+      onError: (errors) => {
+        console.log('Errors:', errors);
+        toast.error('Failed to delete account');
+      },
+    })
   }
+}
     return (
         <>
         <Toaster position="top-right" />

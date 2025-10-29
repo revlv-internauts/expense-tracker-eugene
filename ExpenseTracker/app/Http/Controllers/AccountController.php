@@ -66,11 +66,25 @@ class AccountController extends Controller
 
     public function destroy(Account $account)
     {
-        if ($account->user_id !== Auth::id()) {
-            abort(403, 'Unauthorize action.');
-        }
-        $account->delete();
-        return to_route('accounts.index');
-    }
+        try {
+            if ($account->user_id !== Auth::id()) {
+                return to_route('accounts.index')->with('error', 'Unauthorized action.');
+            }
 
+            $account->delete();
+
+            return to_route('accounts.index')->with('success', 'Account deleted successfully.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23503' || strpos($e->getMessage(), 'foreign key constraint') !== false) {
+                return to_route('accounts.index')
+                    ->with('error', 'Cannot delete this account because it has associated expenses.');
+            }
+
+            \Log::error('Account deletion failed: ' . $e->getMessage());
+            return to_route('accounts.index')->with('error', 'Failed to delete account.');
+        } catch (\Exception $e) {
+            \Log::error('Account deletion failed: ' . $e->getMessage());
+            return to_route('accounts.index')->with('error', 'An unexpected error occurred.');
+        }
+    }
 }

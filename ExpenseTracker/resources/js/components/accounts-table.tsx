@@ -17,17 +17,29 @@ type AccountTableProps = {
 
 export function AccountTable({ accounts }: AccountTableProps) {
   function handleDelete(id: number) {
-    if (confirm("Are you sure you want to delete this account?")) {
-      router.delete(`/accounts/${id}`, {
-        onSuccess: () => {
-          toast.success('Account deleted successfully!')
-        },
-        onError: () => {
-          toast.error('Failed to delete account')
-        },
-      })
-    }
+  if (confirm("Are you sure you want to delete this account?")) {
+    router.delete(`/accounts/${id}`, {
+      onSuccess: (page: any) => {
+        // Add console.log to debug
+        console.log('Flash messages:', page.props.flash);
+        
+        // Check flash messages from the server
+        if (page.props.flash?.error) {
+          toast.error(page.props.flash.error);
+        } else if (page.props.flash?.success) {
+          toast.success(page.props.flash.success);
+        } else {
+          // This shouldn't run if flash messages are working
+          toast.success('Account deleted successfully!');
+        }
+      },
+      onError: (errors) => {
+        console.log('Errors:', errors);
+        toast.error('Failed to delete account');
+      },
+    })
   }
+}
     return (
     <>
         <Toaster position="top-right" />

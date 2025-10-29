@@ -3,11 +3,15 @@ import { Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
+
 type ExpenseTableProps = {
   expenses: Expense[];
 }
 
 export function ExpenseTable({ expenses }: ExpenseTableProps) {
+
+  const totalAmount = expenses.reduce((total, expense) => total + Number(expense.amount), 0);
+
   function handleDelete(id: number) {
     if(confirm("Are you sure you want to delete this expense?")) {
       router.delete(`/expenses/${id}`, {
@@ -127,6 +131,17 @@ export function ExpenseTable({ expenses }: ExpenseTableProps) {
                       ))
                     )}
                   </tbody>
+                  <tfoot className="bg-gray-50">
+                  <tr>
+                    <td colSpan={2} className="py-4 pr-3 pl-4 text-sm font-bold text-gray-900 sm:pl-6">
+                      Total
+                    </td>
+                    <td className="py-4 px-3 text-sm font-bold text-gray-900">
+                      ₱{totalAmount.toFixed(2)}
+                    </td>
+                    <td colSpan={3}></td>
+                  </tr>
+                </tfoot>
                 </table>
               </div>
             </div>

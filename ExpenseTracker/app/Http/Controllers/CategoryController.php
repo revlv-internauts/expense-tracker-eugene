@@ -60,10 +60,25 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        if ($category->user_id !== Auth::id()) {
-            abort(403, 'Unauthorize action.');
+        try {
+            if ($category->user_id !== Auth::id()) {
+                return to_route('categories.index')->with('error', 'Unauthorized action.');
+            }
+            
+            $category->delete();
+            
+            return to_route('categories.index')->with('success', 'Category deleted successfully.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23503' || strpos($e->getMessage(), 'foreign key constraint') !== false) {
+                return to_route('categories.index')
+                    ->with('error', 'Cannot delete this category because it has associated expenses.');
+            }
+            
+            \Log::error('Category deletion failed: ' . $e->getMessage());
+            return to_route('categories.index')->with('error', 'Failed to delete category.');
+        } catch (\Exception $e) {
+            \Log::error('Category deletion failed: ' . $e->getMessage());
+            return to_route('categories.index')->with('error', 'An unexpected error occurred.');
         }
-        $category->delete();
-        return to_route('categories.index');
     }
 }
