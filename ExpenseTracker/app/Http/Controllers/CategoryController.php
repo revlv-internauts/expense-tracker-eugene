@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -23,11 +25,9 @@ class CategoryController extends Controller
         return Inertia::render('categories/create');
     }
 
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required',
-        ]);
+        $validated = $request->validated();
         Category::create([
             ...$validated,
             'user_id' => Auth::id(),
@@ -46,14 +46,12 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
         if ($category->user_id !== Auth::id()) {
             abort(403, 'Unauthorize action.');
         }
-        $validated = $request->validate([
-            'name' => 'required',
-        ]);
+        $validated = $request->validated();
 
         $category->update($validated);
         return to_route('categories.index');

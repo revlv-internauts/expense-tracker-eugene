@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAccountRequest;
+use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -24,11 +26,9 @@ class AccountController extends Controller
         return Inertia::render('accounts/create');
     }
 
-    public function store(Request $request)
+    public function store(StoreAccountRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required',
-        ]);
+        $validated = $request->validated();
 
         // Auto-assign user_id
         Account::create([
@@ -50,15 +50,13 @@ class AccountController extends Controller
         ]);
     }
 
-    public function update(Request $request, Account $account)
+    public function update(UpdateAccountRequest $request, Account $account)
     {
         if ($account->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        $validated = $request->validate([
-            'name' => 'required'
-        ]);
+        $validated = $request->validated();
 
         $account->update($validated);
 

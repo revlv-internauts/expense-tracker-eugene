@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreExpenseRequest;
+use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Account;
 use App\Models\Category;
 use App\Models\Expense;
@@ -37,22 +39,16 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreExpenseRequest $request)
     {
-        $validated = $request->validate([
-            'account_id' => ['required', 'exists:accounts,id'],
-            'category_id' => ['required', 'exists:categories,id'],
-            'description' => ['required', 'string'],
-            'amount' => ['required', 'numeric'],
-            'date' => ['required', 'date'],
-        ]);
+        $validated = $request->validated();
 
         //check if account and category belong to the authenticated user
-        $account = Account::where('id', $request->account_id)
+        $account = Account::where('id', $validated['account_id'])
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        $category = Category::where('id', $request->category_id)
+        $category = Category::where('id', $validated['category_id'])
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
@@ -80,19 +76,13 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function update(Request $request, Expense $expense)
+    public function update(UpdateExpenseRequest $request, Expense $expense)
     {
         if ($expense->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        $validated = $request->validate([
-            'account_id' => ['required', 'exists:accounts,id'],
-            'category_id' => ['required', 'exists:categories,id'],
-            'description' => ['required', 'string'],
-            'amount' => ['required', 'numeric'],
-            'date' => ['required', 'date'],
-        ]);
+        $validated = $request->validated();
 
         $expense->update($validated);
 
