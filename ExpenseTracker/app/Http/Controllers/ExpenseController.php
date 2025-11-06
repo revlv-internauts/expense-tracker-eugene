@@ -19,7 +19,10 @@ class ExpenseController extends Controller
             ->get(); //eto yung nag eexecute ng command sa query
 
         return Inertia::render('expenses/index', [ //Inertia::render = mag render daw ng inertia page, 'expenses/index' eto yung directory ng components sa react
-            'expenses' => $expenses, // 'expenses' eto yung keyname na binabato mo sa frontend as a props, $expenses eto yung nag cocontain ng mga datas na nacollect sa query kanina
+            'expenses' => $expenses,// 'expenses' eto yung keyname na binabato mo sa frontend as a props, $expenses eto yung nag cocontain ng mga datas na nacollect sa query kanina
+            'categories' => Category::where('user_id', Auth::id())->get(), //same functionality sa accounts
+            'accounts' => Account::where('user_id', Auth::id())->get(), //same functionality sa accounts
+            
         ]);
     }
 

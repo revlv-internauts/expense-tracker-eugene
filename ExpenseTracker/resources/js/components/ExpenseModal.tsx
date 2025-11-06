@@ -1,70 +1,61 @@
-import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import { router } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export type Expense = {
-  id: number;
-  account_id: number;
-  category_id: number;
-  description: string;
-  date: string;
-  amount: number;
-  created_at?: string;
-  updated_at?: string;
-};
-
-type Account = {
-  id: number;
-  name: string;
-};
-
-type Category = {
-  id: number;
-  name: string;
-};
-
-type ExpenseEditModalProps = {
+type ExpenseModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  expense: Expense | null;
-  accounts: Account[];
-  categories: Category[];
+  categories?: Array<{ id: number; name: string }>;
+  accounts?: Array<{ id: number; name: string }>;
 };
 
-export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categories }: ExpenseEditModalProps) {
-  type FormData = {
-    account_id: number;
-    category_id: number;
-    description: string;
-    amount: number;
-    date: string;
-  };
-
-  const { data, setData, put, processing, errors, reset } = useForm<FormData>({
-    account_id: expense?.account_id || 0,
-    category_id: expense?.category_id || 0,
-    description: expense?.description || '',
-    amount: expense?.amount || 0,
-    date: expense?.date || '',
+export function ExpenseModal({ isOpen, onClose, categories = [], accounts = [] }: ExpenseModalProps) {
+  const [formData, setFormData] = useState({
+    account_id: '',
+    category_id: '',
+    amount: '',
+    description: '',
+    date: new Date().toISOString().split('T')[0],
   });
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!expense) return;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    put(`/expenses/${expense.id}`, {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    router.post('/expenses', formData, {
       onSuccess: () => {
-        toast.success('Expense successfully updated!');
+        toast.success('Expense created successfully!');
         onClose();
-        reset();
+        // Reset form
+        setFormData({
+          account_id: '',
+          category_id: '',
+          amount: '',
+          description: '',
+          date: new Date().toISOString().split('T')[0],
+        });
       },
-      onError: () => {
-        toast.error('Failed to update expense');
+      onError: (errors) => {
+        toast.error('Failed to create expense');
+        console.error(errors);
+      },
+      onFinish: () => {
+        setIsSubmitting(false);
       },
     });
-  }
+  };
 
-  if (!isOpen || !expense) return null;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -80,9 +71,9 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Edit Expense</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Add New Expense</h2>
               <p className="mt-1 text-sm text-gray-600">
-                Update the details of this expense.
+                Create a new expense record.
               </p>
             </div>
             <button
@@ -104,20 +95,18 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
                 <select
                   id="account_id"
                   name="account_id"
-                  value={data.account_id}
-                  onChange={(e) => setData('account_id', Number(e.target.value))}
+                  value={formData.account_id}
+                  onChange={handleChange}
+                  required
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
                 >
-                  <option value={0}>Select an account</option>
+                  <option value="">Select an account</option>
                   {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name}
                     </option>
                   ))}
                 </select>
-                {errors.account_id && (
-                  <p className="mt-1 text-sm text-red-600">{errors.account_id}</p>
-                )}
               </div>
 
               {/* Category Select */}
@@ -128,20 +117,18 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
                 <select
                   id="category_id"
                   name="category_id"
-                  value={data.category_id}
-                  onChange={(e) => setData('category_id', Number(e.target.value))}
+                  value={formData.category_id}
+                  onChange={handleChange}
+                  required
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
                 >
-                  <option value={0}>Select a category</option>
+                  <option value="">Select a category</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
                 </select>
-                {errors.category_id && (
-                  <p className="mt-1 text-sm text-red-600">{errors.category_id}</p>
-                )}
               </div>
 
               {/* Description Input */}
@@ -153,13 +140,12 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
                   id="description"
                   name="description"
                   type="text"
-                  value={data.description}
-                  onChange={(e) => setData('description', e.target.value)}
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+                  placeholder="Enter expense description"
                 />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-                )}
               </div>
 
               {/* Amount Input */}
@@ -170,18 +156,18 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
                 <div className="relative mt-2">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">₱</span>
                   <input
+                    type="number"
                     id="amount"
                     name="amount"
-                    type="number"
-                    value={data.amount}
-                    onChange={(e) => setData('amount', parseFloat(e.target.value) || 0)}
+                    value={formData.amount}
+                    onChange={handleChange}
+                    required
                     step="0.01"
+                    min="0"
                     className="block w-full rounded-md border border-gray-300 bg-white py-1.5 pl-7 pr-3 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+                    placeholder="0.00"
                   />
                 </div>
-                {errors.amount && (
-                  <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
-                )}
               </div>
 
               {/* Date Input */}
@@ -190,16 +176,14 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
                   Date
                 </label>
                 <input
+                  type="date"
                   id="date"
                   name="date"
-                  type="date"
-                  value={data.date}
-                  onChange={(e) => setData('date', e.target.value)}
+                  value={formData.date}
+                  onChange={handleChange}
+                  required
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
                 />
-                {errors.date && (
-                  <p className="mt-1 text-sm text-red-600">{errors.date}</p>
-                )}
               </div>
             </div>
 
@@ -208,17 +192,17 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
               <button
                 type="button"
                 onClick={onClose}
-                disabled={processing}
+                disabled={isSubmitting}
                 className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={processing}
+                disabled={isSubmitting}
                 className="inline-flex justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
               >
-                {processing ? 'Saving...' : 'Save'}
+                {isSubmitting ? 'Creating...' : 'Create'}
               </button>
             </div>
           </form>

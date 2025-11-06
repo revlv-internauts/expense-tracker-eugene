@@ -8,12 +8,12 @@ export type Category = {
   updated_at?: string
 }
 
-interface CategoryCreateProps {
+interface CategoryEditProps {
   category: Category
 }
 
 
-export default function Edit({ category }: CategoryCreateProps) {
+export default function Edit({ category }: CategoryEditProps) {
   const { data, setData, put, processing, errors } = useForm({
     name: category.name ?? '-',
   })

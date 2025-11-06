@@ -204,15 +204,17 @@ class AccountControllerTest extends TestCase
     }
 
     /** @test */
-    public function destroy_prevents_deleting_other_users_account()
+    public function test_destroy_prevents_deleting_other_users_account()
     {
         $otherUser = User::factory()->create();
         $account = Account::factory()->create(['user_id' => $otherUser->id]);
-
+        
         $response = $this->actingAs($this->user)
             ->delete(route('accounts.destroy', $account));
-
-        $response->assertForbidden();
+        
+        $response->assertRedirect(route('accounts.index'))
+                 ->assertSessionHas('error', 'Unauthorized action.');
+        
         $this->assertDatabaseHas('accounts', ['id' => $account->id]);
     }
 

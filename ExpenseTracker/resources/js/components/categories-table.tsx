@@ -1,14 +1,20 @@
 import { type Category } from '@/types/index';
 import { Link, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { CategoryModal } from '@/components/CategoryModal';
+import { CategoryEditModal } from '@/components/CategoryEditModal';
 
 type CategoryTableProps = {
     categories: Category[];
 }
 
 export function CategoryTable({ categories }: CategoryTableProps) {
-    function handleDelete(id: number) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  function handleDelete(id: number) {
   if (confirm("Are you sure you want to delete this category?")) {
     router.delete(`/categories/${id}`, {
       onSuccess: (page: any) => {
@@ -29,12 +35,35 @@ export function CategoryTable({ categories }: CategoryTableProps) {
         console.log('Errors:', errors);
         toast.error('Failed to delete account');
       },
-    })
+    });
   }
 }
+    function handleEdit(category: Category) {
+        setSelectedCategory(category);
+        setIsEditModalOpen(true);
+    }
+
+    function handleCloseEditModal() {
+        setIsEditModalOpen(false);
+        setSelectedCategory(null);
+    }
+    
     return (
         <>
         <Toaster position="top-right" />
+
+        <CategoryModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            />
+
+        <CategoryEditModal
+            isOpen={isEditModalOpen}
+            onClose={handleCloseEditModal}
+            category={selectedCategory}
+            />
+            
+
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:items-center">
                 <div className="sm:flex-auto">
@@ -44,13 +73,13 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                     </p>
                 </div>
                 <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                    <Link
-                        href="/categories/create"
-                        className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    <button
+                    onClick={() => setIsModalOpen(true)}
+                    className='block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
                     >
-                        <Plus className="inline w-4 h-4 mr-1" />
+                        <Plus className='inline h-4 w-4 mr-1' />
                         Add Category
-                    </Link>
+                    </button>
                 </div>
             </div>
             <div className="mt-8 flow-root">
@@ -89,12 +118,12 @@ export function CategoryTable({ categories }: CategoryTableProps) {
                                                 </td>
                                                 <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-6">
                                                     <div className='flex justify-end space-x-2'>
-                                                    <Link
-                                                        href={`/categories/${category.id}/edit`}
-                                                        className="text-indigo-600 hover:text-indigo-900"
+                                                    <button
+                                                    onClick={() => handleEdit(category)}
+                                                    className="text-indigo-600 hover:text-indigo-900"
                                                     >
-                                                        Edit<span className="sr-only">, {category.description}</span>
-                                                    </Link>
+                                                    Edit<span className="sr-only">, {category.name}</span>
+                                                    </button>
                                                     <button
                                                     onClick={() => handleDelete(category.id)}
                                                     className="text-red-600 hover:text-red-900"
@@ -112,5 +141,5 @@ export function CategoryTable({ categories }: CategoryTableProps) {
             </div>
         </div>
         </>
-    )
-}
+        )
+    }

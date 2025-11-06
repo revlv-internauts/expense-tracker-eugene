@@ -4,6 +4,9 @@ import { Plus } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useState } from 'react';
 import { usePage } from '@inertiajs/react';
+import { Button } from '@headlessui/react';
+import { AccountModal } from '@/components/AccountModal';
+import { AccountEditModal } from '@/components/AccountEditModal';
 
 interface PageProps {
     flash?: {
@@ -15,7 +18,11 @@ type AccountTableProps = {
     accounts: Account[];
 }
 
+
 export function AccountTable({ accounts }: AccountTableProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   function handleDelete(id: number) {
   if (confirm("Are you sure you want to delete this account?")) {
     router.delete(`/accounts/${id}`, {
@@ -40,9 +47,31 @@ export function AccountTable({ accounts }: AccountTableProps) {
     })
   }
 }
+
+    function handleEdit(account: Account) {
+        setSelectedAccount(account);
+        setIsEditModalOpen(true);
+    }
+
+    function handleCloseEditModal() {
+        setIsEditModalOpen(false);
+        setSelectedAccount(null);
+    }
+
     return (
     <>
         <Toaster position="top-right" />
+
+        <AccountModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            />
+
+        <AccountEditModal
+            isOpen={isEditModalOpen}
+            onClose={handleCloseEditModal}
+            account={selectedAccount}
+        />
 
         <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:items-center">
@@ -53,13 +82,13 @@ export function AccountTable({ accounts }: AccountTableProps) {
                     </p>
                 </div>
                 <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                    <Link
-                        href="/accounts/create"
-                        className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className='block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
                     >
                         <Plus className="inline w-4 h-4 mr-1" />
                         Add Account
-                    </Link>
+                    </button>
                 </div>
             </div>
             <div className="mt-8 flow-root">
@@ -98,12 +127,12 @@ export function AccountTable({ accounts }: AccountTableProps) {
                                                 </td>
                                                 <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-6">
                                                     <div className='flex justify-end space-x-2'>
-                                                    <Link
-                                                        href={`/accounts/${account.id}/edit`}
+                                                    <button
+                                                        onClick={() => handleEdit(account)}
                                                         className="text-indigo-600 hover:text-indigo-900"
                                                     >
-                                                        Edit<span className="sr-only">, {account.description}</span>
-                                                    </Link>
+                                                    Edit<span className="sr-only">, {account.description}</span>
+                                                    </button>
                                                     <button
                                                     onClick={() => handleDelete(account.id)}
                                                     className="text-red-600 hover:text-red-900"

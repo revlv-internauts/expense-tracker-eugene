@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -44,9 +45,23 @@ export function ExpenseEditModal({ isOpen, onClose, expense, accounts, categorie
     account_id: expense?.account_id || 0,
     category_id: expense?.category_id || 0,
     description: expense?.description || '',
-    amount: expense?.amount || 0,
+    amount: expense?.amount || 1,
     date: expense?.date || '',
   });
+  //console.log(expense);
+
+  useEffect(() => {
+  if (expense) {
+    setData({
+      account_id: expense.account_id || 0,
+      category_id: expense.category_id || 0,
+      description: expense.description || '',
+      amount: expense.amount || 1,
+      date: expense.date || '',
+    });
+  }
+}, [expense]);
+
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

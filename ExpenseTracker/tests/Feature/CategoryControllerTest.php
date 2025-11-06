@@ -131,16 +131,18 @@ class CategoryControllerTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_delete_someone_elses_category()
+    public function test_user_cannot_delete_someone_elses_category()
     {
         $user = User::factory()->create();
         $other = User::factory()->create();
         $category = Category::factory()->create(['user_id' => $other->id]);
-
+        
         $this->actingAs($user)
              ->delete(route('categories.destroy', $category))
-             ->assertForbidden();
-
+             ->assertRedirect(route('categories.index'))
+             ->assertSessionHas('error', 'Unauthorized action.');
+        
+        // Verify category still exists
         $this->assertDatabaseHas('categories', ['id' => $category->id]);
     }
 }

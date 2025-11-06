@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -80,10 +81,10 @@ class AccountController extends Controller
                     ->with('error', 'Cannot delete this account because it has associated expenses.');
             }
 
-            \Log::error('Account deletion failed: ' . $e->getMessage());
+            Log::error('Account deletion failed: ' . $e->getMessage());
             return to_route('accounts.index')->with('error', 'Failed to delete account.');
         } catch (\Exception $e) {
-            \Log::error('Account deletion failed: ' . $e->getMessage());
+            Log::error('Account deletion failed: ' . $e->getMessage());
             return to_route('accounts.index')->with('error', 'An unexpected error occurred.');
         }
     }
